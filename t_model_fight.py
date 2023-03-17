@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 训练模型评估，读取训练好的数据进行评估绘图，动态三维对抗图，动态角度、高度、速度优势
 '''
 
-DRAW_WITH_ADVANTAGE = False
+DRAW_WITH_ADVANTAGE = True
 
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airCom11001')
+    agent.load_model('model/airCom701')
     cache = agent.test_result()
     r_states = cache.get_r_states()
     b_states = cache.get_b_states()
@@ -24,6 +24,7 @@ if __name__ == '__main__':
     rewards = cache.get_rewards()
     print("total steps:{0}; rewards is {1}".format(len(rewards), sum(rewards)))
     print(rewards)
+    print(r_actions)
     angle_adv = cache.get_angle_adv()
     height_adv = cache.get_height_adv()
     velocity_adv = cache.get_velocity_adv()
@@ -77,9 +78,11 @@ if __name__ == '__main__':
 
         ax.plot(r_states_x[:1], r_states_y[:1], r_states_z[:1], 'g', marker='o', markersize=10, label='start')
         ax.plot(b_states_x[:1], b_states_y[:1], b_states_z[:1], 'g', marker='o', markersize=10)
+        ax.plot(missile1_states_x[:1], missile1_states_y[:1], missile1_states_z[:1], 'g', marker='o', markersize=10)
         for i in range(len(r_states_x)):
             ax.plot(r_states_x[0:i], r_states_y[0:i], r_states_z[0:i], 'r')
             ax.plot(b_states_x[0:i], b_states_y[0:i], b_states_z[0:i], 'b')
+            ax.plot(missile1_states_x[0:i], missile1_states_y[0:i], missile1_states_z[0:i], 'k')
             ax1.plot(rewards[0:i], 'b')
             ax2.plot(angle_adv[0:i], 'b')
             ax3.plot(height_adv[0:i], 'b')
@@ -87,6 +90,7 @@ if __name__ == '__main__':
             plt.pause(0.05)
         ax.plot(r_states_x, r_states_y, r_states_z, 'r', label='aircraft_r')
         ax.plot(b_states_x, b_states_y, b_states_z, 'b', label='aircraft_b')
+        ax.plot(missile1_states_x, missile1_states_y, missile1_states_z, 'k', label='p-guide')
 
         ax.plot(r_states_x[-1:], r_states_y[-1:], r_states_z[-1:], 'black', marker='x', markersize=10, label='end')
         ax.plot(b_states_x[-1:], b_states_y[-1:], b_states_z[-1:], 'black', marker='x', markersize=10)

@@ -26,7 +26,7 @@ class CombatEnv(object):
         self.done = False
         self.total_steps = 0
         self.cache = Cache()
-
+        self.step_num = 0
     # 初始化敌我无人机初始状态
     def _state_initialize(self, rand=False):
         # 引入theta为了使两机初始状态相对
@@ -34,7 +34,7 @@ class CombatEnv(object):
             # self.theta = random.uniform(-pi, pi)  # 敌方无人机相对我方的方位角（2D）,在小角度出现？便于学习？
             self.theta = pi / 4
         if rand is False:
-            x = 20000
+            x = 10000
             y = 0
             z = Z_INIT
             v = 600
@@ -50,9 +50,9 @@ class CombatEnv(object):
             # heading = random.uniform(-pi, pi)
             # distance_from_r = random.uniform(0.4 * DIST_INIT_MAX, 0.5 * DIST_INIT_MAX)  # 初始距离
             # distance_from_r = 10000.0  # 固定距离？？ 便于学习？？
-            distance_from_r = 8000.0 / math.cos(self.theta)
+            #distance_from_r = 8000.0 / math.cos(self.theta)
             x = 10000
-            y = 20000
+            y = 40000
             z = Z_INIT
             v = V_INIT
             roll = ROLL_INIT
@@ -71,17 +71,17 @@ class CombatEnv(object):
 
         state_r = self._state_initialize(rand=False)
         state_b = self._state_initialize(rand=True)
-        state_missile = [0, 0, 6000, 600, pi/4, ROLL_INIT, PITCH_INIT]
 
         self.aircraft_r.reset(state_r)
         self.aircraft_b.reset(state_b)
         self.missile1.reset()
-        self.missile1.emit_mis(state_b, state_missile)
+        self.missile1.emit_mis(state_b, self.missile1.missile_init_state)
         self.cache.push_r_state(state_r)
         self.cache.push_b_state(state_b)
-        self.cache.push_missile1_state(state_missile)
+        self.cache.push_missile1_state(self.missile1.missile_init_state)
         self.virtual_aircraft_b.reset(state_b)
 
+        self.step_num = 0
         state_norm = self._normalize(state_r, state_b)
         self.state = state_norm
         return self.state
@@ -127,10 +127,30 @@ class CombatEnv(object):
         distance = np.sqrt(np.sum(vector_d * vector_d))
         return [distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b]
 
+    def p_b_situation(self, state_missile, state_b):
+        x_m, y_m, z_m, v_m, v_x, v_y, v_z = state_missile
+        x_b, y_b, z_b, v_b, heading_b, roll_b, pitch_b = state_b
+
+        # 距离向量
+        vector_d = np.array([x_b - x_m, y_b - y_m, z_b - z_m])
+        # 敌我无人机的速度向量
+        vector_vr = np.array([v_x, v_y, v_z])
+        vector_vb = np.array([math.cos(pitch_b) * math.cos(heading_b),
+                              math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
+        # AA角和ATA角计算，向量夹角
+        # AA和ATA搞反了，和论文刚好相反
+        aspect_angle = self._cal_angle(vector_vr, vector_d)
+        antenna_train_angle = self._cal_angle(vector_vb, vector_d)
+        # print("AA:{0}, ATA:{1}".format(aspect_angle, antenna_train_angle))
+
+        distance = np.sqrt(np.sum(vector_d * vector_d))
+        return [distance, aspect_angle, antenna_train_angle, z_m, z_b, v_m, v_b, pitch_b, pitch_b, roll_b, roll_b]
+
     def _cal_angle(self, vector_vr, vector_d):
         dot_product = np.dot(vector_vr, vector_d)
+        vr_norm = np.sqrt(np.sum(vector_vr * vector_vr))
         d_norm = np.sqrt(np.sum(vector_d * vector_d))
-        angle = np.arccos(dot_product / (d_norm + 1e-5))
+        angle = np.arccos(dot_product / (d_norm*vr_norm + 1e-5))
         return angle
 
     def _cal_reward(self, situation, save=True):
@@ -154,7 +174,7 @@ class CombatEnv(object):
         initial_state_b = self.virtual_aircraft_b.state
         for i in range(self.action_dim):
             self.virtual_aircraft_b.maneuver(i)
-            virtual_situation = self._situation(self.aircraft_r.state, self.virtual_aircraft_b.state)
+            virtual_situation = self.p_b_situation(self.missile1.missile_state, self.virtual_aircraft_b.state)
             virtual_reward = 0.7 * advantage.angle_adv(virtual_situation) + 0.2 * advantage.height_adv(
                 virtual_situation) + \
                              0.1 * advantage.velocity_adv(virtual_situation)
@@ -238,6 +258,7 @@ class CombatEnv(object):
         :param action: 执行动作
         :return: 下一状态（归一化后）、奖励、该幕是否结束
         """
+        self.step_num +=1
         action_r = action
         action_b = self._enemy_ai()
 

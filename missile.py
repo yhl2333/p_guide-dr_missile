@@ -9,6 +9,7 @@
 @copyright Copyright (c) 2022
 """
 #from matplotlib import pyplot as plt
+from aircraft import *
 import numpy as np
 #import config
 
@@ -39,8 +40,8 @@ class Missile:
         self.rt = np.array([0., 0., 0.])  # 目标位置坐标
         self.vt = np.array([0., 0., 0.])  # 目标速度
         self.state_process = []  # 保存导弹飞行状态列表
-
-
+        self.missile_init_state = [0, 0, 5000, 600, pi/4, ROLL_INIT, PITCH_INIT]
+        self.missile_state = self.missile_init_state
     def reset(self):
         self.t = 0  # 仿真时间
         #self.t_list = []  # 仿真时间列表
@@ -54,7 +55,7 @@ class Missile:
         self.rt = np.array([0., 0., 0.])  # 目标位置坐标
         self.vt = np.array([0., 0., 0.])  # 目标速度
         self.state_process = []  # 保存导弹飞行状态列表
-
+        self.missile_state = self.missile_init_state
 
 
     @staticmethod
@@ -85,8 +86,8 @@ class Missile:
         self.t = 0
         #self.t_list.append(self.t)
         self.sim_step = 0
-        state = np.concatenate([self.rt, self.vt, self.rm, self.vm])  # 目标状态和导弹状态
-        self.state_process.append(state)  # 保存导弹飞行状态列表
+        state = np.concatenate([self.rm, [self.ms_v], self.vm])  # 目标状态和导弹状态
+        self.missile_state = state  # 保存导弹飞行状态列表
 
     def p_guide_sim(self, enemy_state):
         """比例导引仿真"""
@@ -151,6 +152,7 @@ class Missile:
 
         self.vm = self.vm / np.linalg.norm(self.vm) * self.ms_v
         state = np.concatenate([self.rm, [self.ms_v], self.vm])
+        self.missile_state = state
         #print(state)
         return state
 
