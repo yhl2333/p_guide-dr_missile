@@ -52,7 +52,7 @@ class CombatEnv(object):
             # distance_from_r = 10000.0  # 固定距离？？ 便于学习？？
             #distance_from_r = 8000.0 / math.cos(self.theta)
             x = 10000
-            y = 40000
+            y = 30000
             z = Z_INIT
             v = V_INIT
             roll = ROLL_INIT
@@ -157,10 +157,14 @@ class CombatEnv(object):
         angle_reward = advantage.angle_adv(situation)
         height_reward = advantage.height_adv(situation)
         velocity_reward = advantage.velocity_adv(situation)
+        dis_reward = advantage.dis_adv(situation)
+        pre_angle_reward = advantage.pre_angle(situation)
         if save is True:
             self.cache.push_angle_adv(angle_reward)
             self.cache.push_height_adv(height_reward)
             self.cache.push_velocity_adv(velocity_reward)
+            self.cache.push_dis_adv(dis_reward)
+            self.cache.push_pre_angle_adv(pre_angle_reward)
             self.cache.push_reward(0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward)
 
         return 0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward
@@ -175,9 +179,12 @@ class CombatEnv(object):
         for i in range(self.action_dim):
             self.virtual_aircraft_b.maneuver(i)
             virtual_situation = self.p_b_situation(self.missile1.missile_state, self.virtual_aircraft_b.state)
-            virtual_reward = 0.7 * advantage.angle_adv(virtual_situation) + 0.2 * advantage.height_adv(
-                virtual_situation) + \
-                             0.1 * advantage.velocity_adv(virtual_situation)
+            #virtual_reward = 0.7 * advantage.angle_adv(virtual_situation) + 0.2 * advantage.height_adv(
+                #virtual_situation) + \
+                             #0.1 * advantage.velocity_adv(virtual_situation)
+            print(virtual_situation[2])
+            virtual_reward =0.*advantage.dis_adv(virtual_situation) +0.2*advantage.height_adv(virtual_situation) +0.6 *advantage.pre_angle(virtual_situation) +0.2*advantage.velocity_adv(virtual_situation)
+
             virtual_rewards.append(virtual_reward)
             # 模拟完一轮之后将状态复原
             self.virtual_aircraft_b.reset(initial_state_b)

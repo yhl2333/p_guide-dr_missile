@@ -35,7 +35,26 @@ def height_adv(state):
     else:
         return (z_r - z_b) / 1000.0
 
+def dis_adv(state):
+    distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b = state
+    if 5000<=distance<10000:
+        return (10000-distance)/10000
+    elif distance<5000:
+        return 1
+    else:
+        return 0
 
+def pre_angle(state):
+    distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b = state
+    if aspect_angle < pi/3:
+        adv_p = math.exp(-aspect_angle / AA_MAX)
+    else:
+        adv_p = 0
+    if antenna_train_angle >= pi - ATA_MAX:
+        adv_b = -math.exp(-(pi - antenna_train_angle) / ATA_MAX)
+    else:
+        adv_b = 0
+    return 0.5*(adv_p - adv_b)
 def velocity_adv(state):
     distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b = state
     return (v_r - v_b) / 250.0

@@ -24,7 +24,7 @@ class Missile:
 
     def __init__(self, num: int):
         self.num = num  # 编号
-        self.ms_v = 600  # 导弹飞行速度大小
+        self.ms_v = 800  # 导弹飞行速度大小
         # self.emitted = False  # 导弹是否已经发射
         # self.hit_tar = False  # 是否命中目标
         # self.sim_end = False  # 是否结束仿真
@@ -98,7 +98,7 @@ class Missile:
         #     return
         self.rt, self.vt = self.trans_state(enemy_state)
         # 拦射发射
-        self.rt = self.rt - self.vt*3
+        self.rt = self.rt + self.vt*0
         # if not self.can_hit_tar:
         #     self.rt += np.array([-2000, 2000, 2000])
         state = np.concatenate([self.rt, self.vt, self.rm, self.vm])  # 目标状态和导弹状态

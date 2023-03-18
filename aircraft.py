@@ -77,13 +77,13 @@ class Aircraft(object):
         dot_pitch = g * (ny * math.cos(roll) - math.cos(pitch)) / v
         dot_heading = g * ny * math.sin(roll) / (v * math.cos(pitch))
 
-        dot_x = v * math.cos(pitch) * math.cos(heading)
-        dot_y = v * math.cos(pitch) * math.sin(heading)
-        dot_z = v * math.sin(pitch)
-
         v += dot_v * dt
         pitch += dot_pitch * dt
         heading += dot_heading * dt
+
+        dot_x = v * math.cos(pitch) * math.cos(heading)
+        dot_y = v * math.cos(pitch) * math.sin(heading)
+        dot_z = v * math.sin(pitch)
 
         x += dot_x * dt
         y += dot_y * dt

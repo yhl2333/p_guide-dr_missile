@@ -14,7 +14,7 @@ DRAW_WITH_ADVANTAGE = True
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airCom701')
+    agent.load_model('model/airCom401')
     cache = agent.test_result()
     r_states = cache.get_r_states()
     b_states = cache.get_b_states()
@@ -25,6 +25,7 @@ if __name__ == '__main__':
     print("total steps:{0}; rewards is {1}".format(len(rewards), sum(rewards)))
     print(rewards)
     print(r_actions)
+    print(b_actions)
     angle_adv = cache.get_angle_adv()
     height_adv = cache.get_height_adv()
     velocity_adv = cache.get_velocity_adv()
@@ -119,6 +120,6 @@ if __name__ == '__main__':
 
         ax.plot(r_states_x[-1:], r_states_y[-1:], r_states_z[-1:], 'black', marker='x', markersize=10, label='end')
         ax.plot(b_states_x[-1:], b_states_y[-1:], b_states_z[-1:], 'black', marker='x', markersize=10)
-
+        ax.plot(missile1_states_x[-1:], missile1_states_y[-1:], missile1_states_z[-1:], 'black', marker='x', markersize=10)
         ax.legend(loc='upper right')
         plt.show()
