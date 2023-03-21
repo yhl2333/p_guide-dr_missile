@@ -14,7 +14,7 @@ DRAW_WITH_ADVANTAGE = True
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airCom401')
+    agent.load_model('model/airCom10701')
     cache = agent.test_result()
     r_states = cache.get_r_states()
     b_states = cache.get_b_states()
@@ -95,7 +95,8 @@ if __name__ == '__main__':
 
         ax.plot(r_states_x[-1:], r_states_y[-1:], r_states_z[-1:], 'black', marker='x', markersize=10, label='end')
         ax.plot(b_states_x[-1:], b_states_y[-1:], b_states_z[-1:], 'black', marker='x', markersize=10)
-
+        ax.plot(missile1_states_x[-1:], missile1_states_y[-1:], missile1_states_z[-1:], 'black', marker='x',
+                markersize=10)
         ax.legend(loc='upper right')
         plt.show()
     else:

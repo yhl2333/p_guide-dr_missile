@@ -1,4 +1,7 @@
 import math
+
+import numpy as np
+
 from config import *
 
 AA_MAX = 180 * deg2rad
@@ -33,7 +36,7 @@ def height_adv(state):
     elif z_r - z_b < -1000:
         return -1.0
     else:
-        return (z_r - z_b) / 1000.0
+        return (1000-np.abs(z_r - z_b)) / 1000.0
 
 def dis_adv(state):
     distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b = state
@@ -46,18 +49,14 @@ def dis_adv(state):
 
 def pre_angle(state):
     distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b = state
-    if aspect_angle < pi/3:
+    if aspect_angle < pi/2:
         adv_p = math.exp(-aspect_angle / AA_MAX)
     else:
         adv_p = 0
-    if antenna_train_angle >= pi - ATA_MAX:
-        adv_b = -math.exp(-(pi - antenna_train_angle) / ATA_MAX)
-    else:
-        adv_b = 0
-    return 0.5*(adv_p - adv_b)
+    return adv_p
 def velocity_adv(state):
     distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b = state
-    return (v_r - v_b) / 250.0
+    return (v_r - v_b) / 450.0
 
 def _angle_adv(aa, ata):
     if aa <= AA_MAX:

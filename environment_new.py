@@ -1,4 +1,4 @@
-from aircraft import *
+#from aircraft import *
 import random
 import advantage
 from cache import *
@@ -26,7 +26,13 @@ class CombatEnv(object):
         self.done = False
         self.total_steps = 0
         self.cache = Cache()
+        # 控制专家系统库的决策
         self.step_num = 0
+        # 当对手机和p-guide导弹距离小于1500m时，辅助机动决策,决策变量
+        self.b_num = 0
+        self.action_emerge = 0
+        self.init_x_b = 0
+        self.init_x_m = 0
     # 初始化敌我无人机初始状态
     def _state_initialize(self, rand=False):
         # 引入theta为了使两机初始状态相对
@@ -37,7 +43,7 @@ class CombatEnv(object):
             x = 10000
             y = 0
             z = Z_INIT
-            v = 600
+            v = 300
             heading = pi/2
             roll = ROLL_INIT
             pitch = PITCH_INIT
@@ -82,6 +88,10 @@ class CombatEnv(object):
         self.virtual_aircraft_b.reset(state_b)
 
         self.step_num = 0
+        self.b_num = 0
+        self.action_emerge = 0
+        self.init_x_m = 0
+        self.init_x_b = 0
         state_norm = self._normalize(state_r, state_b)
         self.state = state_norm
         return self.state
@@ -165,10 +175,10 @@ class CombatEnv(object):
             self.cache.push_velocity_adv(velocity_reward)
             self.cache.push_dis_adv(dis_reward)
             self.cache.push_pre_angle_adv(pre_angle_reward)
-            self.cache.push_reward(0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward)
+            self.cache.push_reward(0.3*velocity_reward+0.7*pre_angle_reward)
 
-        return 0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward
-
+        #return 0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward
+        return 0.3*velocity_reward+0.*pre_angle_reward+0.7*dis_reward
     def _enemy_ai(self):
         """
         敌机策略生成，滚动时域法，搜索7个动作中使我方无人机回报最小的动作执行
@@ -182,7 +192,7 @@ class CombatEnv(object):
             #virtual_reward = 0.7 * advantage.angle_adv(virtual_situation) + 0.2 * advantage.height_adv(
                 #virtual_situation) + \
                              #0.1 * advantage.velocity_adv(virtual_situation)
-            print(virtual_situation[2])
+
             virtual_reward =0.*advantage.dis_adv(virtual_situation) +0.2*advantage.height_adv(virtual_situation) +0.6 *advantage.pre_angle(virtual_situation) +0.2*advantage.velocity_adv(virtual_situation)
 
             virtual_rewards.append(virtual_reward)
@@ -213,52 +223,78 @@ class CombatEnv(object):
         专家系统策略
         :return:
         """
-        state_r, state_b = self.aircraft_r.state, self.aircraft_b.state
-        x_r, y_r, z_r, v_r, heading_r, roll_r, pitch_r = state_r
+        state_missile, state_b = self.missile1.missile_state, self.aircraft_b.state
+        x_m, y_m, z_m, v_m, v_x, v_y, v_z = state_missile
         x_b, y_b, z_b, v_b, heading_b, roll_b, pitch_b = state_b
 
         # 距离向量
-        vector_d = np.array([x_b - x_r, y_b - y_r, z_b - z_r])
+        vector_d = np.array([x_b - x_m, y_b - y_m, z_b - z_m])
         # 敌我无人机的速度向量
-        vector_vr = np.array([math.cos(pitch_r) * math.cos(heading_r),
-                              math.sin(heading_r) * math.cos(pitch_r), math.sin(pitch_r)])
+        vector_vm = np.array([v_x, v_y, v_z])
         vector_vb = np.array([math.cos(pitch_b) * math.cos(heading_b),
                               math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
+        distance = np.sqrt(np.sum(vector_d * vector_d))
         # AA角和ATA角计算，向量夹角
-        aspect_angle = self._cal_angle(vector_vr, vector_d)
+        aspect_angle = self._cal_angle(vector_vm, vector_d)
         antenna_train_angle = self._cal_angle(vector_vb, vector_d)
 
-        left_or_right = np.sign(vector_vr[0] * vector_vb[1] - vector_vr[1] * vector_vb[0])
+        if self.step_num == 1:
+            self.init_x_m = x_m
+            self.init_x_b = x_b
+        left_or_right = np.sign(vector_vm[0] * vector_vb[1] - vector_vm[1] * vector_vb[0])
         linear_adv = 1 - (aspect_angle + antenna_train_angle) / pi
-        if random.random() >= 0.1:
-            return self._chase(left_or_right)
+        # 0.定常飞行； 1.加速； 2.减速； 3.左转弯； 4.右转弯； 5.拉起； 6.俯冲
+        if self.step_num < 50:
+            return 1
         else:
-            if z_r > z_b:
-                return 5
-            if z_r < z_b:
-                return 6
-            return 0
+            if random.random() >= 0.1:
+                return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
+            else:
+                if z_m > z_b:
+                    return 6
+                else:
+                    return 5
+
 
     def _escape(self, left_or_right):
-        print("escape")
         if left_or_right > 0:
-            return 3
+            return 4
         elif left_or_right < 0:
             return 4
         else:
             return 6
 
-    def _chase(self, left_or_right):
-        if left_or_right > 0:
-            print("chase1")
-            return 3
-        elif left_or_right < 0:
-            print("chase2")
-            return 4
-        else:
-            print("chase3")
-            return 6
+    def _chase(self, vector_vm, vector_vb, distance, z_m, z_b, init_x_m, init_x_b):
+        #print(self._cal_angle(vector_vm, vector_vb))
+        if distance>1500:
+            if (self._cal_angle(vector_vm, vector_vb) > 2*pi/3)or(self._cal_angle(vector_vm, vector_vb) < pi/3):
+                if init_x_m >init_x_b:
+                    return 3
+                else:
+                    return 4
 
+            else:
+                virtual_distances=[]
+                initial_state_b = self.virtual_aircraft_b.state
+                for i in range(self.action_dim):
+                    self.virtual_aircraft_b.maneuver(i)
+                    virtual_situation = self.p_b_situation(self.missile1.missile_state, self.virtual_aircraft_b.state)
+                    virtual_distances.append(virtual_situation[0])
+                    # 模拟完一轮之后将状态复原
+                    self.virtual_aircraft_b.reset(initial_state_b)
+                # 选取使得敌方虚拟收益最小的动作
+                action = virtual_distances.index(max(virtual_distances))
+                return action
+        else:
+            if self.b_num == 0:
+                if z_m < z_b:
+                    self.action_emerge = 6
+                else:
+                    self.action_emerge = 5
+                self.b_num +=1
+                return self.action_emerge
+            else:
+                return self.action_emerge
     def step(self, action):
         """
         执行状态的一个时间步的更新
@@ -267,7 +303,7 @@ class CombatEnv(object):
         """
         self.step_num +=1
         action_r = action
-        action_b = self._enemy_ai()
+        action_b = self._enemy_ai_expert()
 
         state_r = self.aircraft_r.maneuver_m(action_r)
         state_b = self.aircraft_b.maneuver(action_b)
@@ -290,11 +326,11 @@ class CombatEnv(object):
 
         distance, z_r, aa, ata = situation[0], situation[3], situation[1], situation[2]
         # 超出近战范围或步长过大
-        if self.done is False and self.total_steps >= 250:
+        if self.done is False and self.total_steps >= 200:
             self.done = True
 
         if distance > DIST_INIT_MAX or distance < 300:
-            reward = -5
+            reward = 5
             self.cache.push_reward(reward)
             self.done = True
 

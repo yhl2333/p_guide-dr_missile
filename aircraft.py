@@ -2,8 +2,8 @@ import numpy as np
 from config import *
 import math
 
-V_MAX = 350
-V_MIN = 100
+V_MAX = 300
+V_MIN = 150
 ROLL_MAX = 78.5 * deg2rad
 PITCH_MAX = 45 * deg2rad
 
@@ -23,7 +23,7 @@ dt = 0.25  # seconds
 # action = [roll, nx, ny]
 # 1.定常飞行； 2.加速； 3.减速； 4.左转弯； 5.右转弯； 6.拉起； 7.俯冲
 action_lists = [[0, 0, 1], [0, 2, 1], [0, -2, 1],
-                [-ROLL_MAX, 0, 5], [ROLL_MAX, 0, 5], [0, 0, 5], [0, 0, -5]]
+                [-ROLL_MAX, 0, 5], [ROLL_MAX, 0, 5], [0, 0, 7], [0, 0, -7]]
 
 
 class Aircraft(object):

@@ -24,7 +24,7 @@ class Missile:
 
     def __init__(self, num: int):
         self.num = num  # 编号
-        self.ms_v = 800  # 导弹飞行速度大小
+        self.ms_v = 700  # 导弹飞行速度大小
         # self.emitted = False  # 导弹是否已经发射
         # self.hit_tar = False  # 是否命中目标
         # self.sim_end = False  # 是否结束仿真
@@ -40,7 +40,7 @@ class Missile:
         self.rt = np.array([0., 0., 0.])  # 目标位置坐标
         self.vt = np.array([0., 0., 0.])  # 目标速度
         self.state_process = []  # 保存导弹飞行状态列表
-        self.missile_init_state = [0, 0, 5000, 600, pi/4, ROLL_INIT, PITCH_INIT]
+        self.missile_init_state = [0, 0, 5000, self.ms_v, pi/4, ROLL_INIT, PITCH_INIT]
         self.missile_state = self.missile_init_state
     def reset(self):
         self.t = 0  # 仿真时间
@@ -102,7 +102,7 @@ class Missile:
         # if not self.can_hit_tar:
         #     self.rt += np.array([-2000, 2000, 2000])
         state = np.concatenate([self.rt, self.vt, self.rm, self.vm])  # 目标状态和导弹状态
-        if (np.linalg.norm(self.rm - self.rt) >= 1000):
+        if (np.linalg.norm(self.rm - self.rt) >= 1500):
             state = np.concatenate([self.rt, self.vt, self.rm, self.vm])  # 目标状态和导弹状态
             while True:
                 k1 = self.dt * PGuidance.equ(self.t, state)
