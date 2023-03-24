@@ -43,7 +43,7 @@ class CombatEnv(object):
             x = 10000
             y = 0
             z = Z_INIT
-            v = 440
+            v = 500
             heading = pi/2
             roll = ROLL_INIT
             pitch = PITCH_INIT
@@ -105,7 +105,7 @@ class CombatEnv(object):
         x_b = x_b / 10000.0
         y_r = y_r / 30000.0
         y_b = y_b / 30000.0
-        v_r = (v_r - 480) / 40
+        v_r = (v_r - 500) / 50
         v_b = (v_b - 250) / 50
         z_r = (z_r - Z_MIN) / (Z_MAX - Z_MIN)
         z_b = (z_b - Z_MIN) / (Z_MAX - Z_MIN)
@@ -175,10 +175,10 @@ class CombatEnv(object):
             self.cache.push_velocity_adv(velocity_reward)
             self.cache.push_dis_adv(dis_reward)
             self.cache.push_pre_angle_adv(pre_angle_reward)
-            self.cache.push_reward(0.2*velocity_reward+0.6*pre_angle_reward+0.2*height_reward)
+            self.cache.push_reward(0.2*velocity_reward+0.8*pre_angle_reward+0.*height_reward)
 
         #return 0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward
-        return 0.2*velocity_reward+0.6*pre_angle_reward+0.*dis_reward+0.2*height_reward
+        return 0.2*velocity_reward+0.8*pre_angle_reward+0.*dis_reward+0.*height_reward
     def _enemy_ai(self):
         """
         敌机策略生成，滚动时域法，搜索7个动作中使我方无人机回报最小的动作执行
