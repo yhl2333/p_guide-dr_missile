@@ -23,6 +23,7 @@ if __name__ == '__main__':
     b_actions = cache.get_b_actions()
     rewards = cache.get_rewards()
 
+
     print("total steps:{0}; rewards is {1}".format(len(rewards), sum(rewards)))
     print(rewards)
     print(r_actions)
