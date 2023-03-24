@@ -3,14 +3,14 @@ from config import *
 import math
 
 V_MAX = 300
-V_MIN = 150
+V_MIN = 200
 ROLL_MAX = 78.5 * deg2rad
 PITCH_MAX = 45 * deg2rad
 
 Z_INIT = 6000
-Z_MAX = 200000
+Z_MAX = 9000
 Z_MIN = 1000
-V_INIT = 200
+V_INIT = 250
 HEADING_INIT = 0
 ROLL_INIT = 0
 PITCH_INIT = 0
@@ -135,7 +135,7 @@ class Aircraft(object):
         y += dot_y * dt
         z += dot_z * dt
 
-        v = self._clamp(550, 650, v)
+        v = self._clamp(440, 520, v)
         pitch = self._clamp(-self.pitch_max, self.pitch_max, pitch)
         if heading > pi:
             heading -= 2 * pi

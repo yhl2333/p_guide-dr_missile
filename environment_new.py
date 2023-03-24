@@ -43,7 +43,7 @@ class CombatEnv(object):
             x = 10000
             y = 0
             z = Z_INIT
-            v = 300
+            v = 440
             heading = pi/2
             roll = ROLL_INIT
             pitch = PITCH_INIT
@@ -103,9 +103,9 @@ class CombatEnv(object):
 
         x_r = x_r / 10000.0
         x_b = x_b / 10000.0
-        y_r = y_r / 10000.0
-        y_b = y_b / 10000.0
-        v_r = (v_r - 250) / 50
+        y_r = y_r / 30000.0
+        y_b = y_b / 30000.0
+        v_r = (v_r - 480) / 40
         v_b = (v_b - 250) / 50
         z_r = (z_r - Z_MIN) / (Z_MAX - Z_MIN)
         z_b = (z_b - Z_MIN) / (Z_MAX - Z_MIN)
@@ -175,10 +175,10 @@ class CombatEnv(object):
             self.cache.push_velocity_adv(velocity_reward)
             self.cache.push_dis_adv(dis_reward)
             self.cache.push_pre_angle_adv(pre_angle_reward)
-            self.cache.push_reward(0.3*velocity_reward+0.7*pre_angle_reward)
+            self.cache.push_reward(0.2*velocity_reward+0.6*pre_angle_reward+0.2*height_reward)
 
         #return 0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward
-        return 0.3*velocity_reward+0.*pre_angle_reward+0.7*dis_reward
+        return 0.2*velocity_reward+0.6*pre_angle_reward+0.*dis_reward+0.2*height_reward
     def _enemy_ai(self):
         """
         敌机策略生成，滚动时域法，搜索7个动作中使我方无人机回报最小的动作执行
@@ -326,11 +326,11 @@ class CombatEnv(object):
 
         distance, z_r, aa, ata = situation[0], situation[3], situation[1], situation[2]
         # 超出近战范围或步长过大
-        if self.done is False and self.total_steps >= 200:
+        if self.done is False and self.total_steps >= 220:
             self.done = True
 
-        if distance > DIST_INIT_MAX or distance < 300:
-            reward = 5
+        if distance > DIST_INIT_MAX or distance < 500:
+            reward = 10
             self.cache.push_reward(reward)
             self.done = True
 

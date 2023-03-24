@@ -49,14 +49,14 @@ def dis_adv(state):
 
 def pre_angle(state):
     distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b = state
-    if aspect_angle < pi/2:
+    if aspect_angle < pi/6:
         adv_p = math.exp(-aspect_angle / AA_MAX)
     else:
-        adv_p = 0
+        adv_p = -1
     return adv_p
 def velocity_adv(state):
     distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b = state
-    return (v_r - v_b) / 450.0
+    return (v_r - v_b-190) / 180.0
 
 def _angle_adv(aa, ata):
     if aa <= AA_MAX:
