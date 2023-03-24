@@ -330,7 +330,7 @@ class CombatEnv(object):
             self.done = True
 
         if distance > DIST_INIT_MAX or distance < 500:
-            reward =  10
+            reward = 10
             self.cache.push_reward(reward)
             self.done = True
 
