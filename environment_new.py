@@ -41,9 +41,9 @@ class CombatEnv(object):
             self.theta = pi / 4
         if rand is False:
             x = 10000
-            y = 0
+            y = -10000
             z = Z_INIT
-            v = 500
+            v = 700
             heading = pi/2
             roll = ROLL_INIT
             pitch = PITCH_INIT
@@ -105,7 +105,7 @@ class CombatEnv(object):
         x_b = x_b / 10000.0
         y_r = y_r / 30000.0
         y_b = y_b / 30000.0
-        v_r = (v_r - 500) / 50
+        v_r = (v_r - 700) / 50
         v_b = (v_b - 250) / 50
         z_r = (z_r - Z_MIN) / (Z_MAX - Z_MIN)
         z_b = (z_b - Z_MIN) / (Z_MAX - Z_MIN)
