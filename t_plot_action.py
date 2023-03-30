@@ -14,7 +14,7 @@ DRAW_WITH_ADVANTAGE = True
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airCom17999')
+    agent.load_model('model/airCom19001')
     cache = agent.test_result()
     r_actions = cache.get_r_actions()
     b_actions = cache.get_b_actions()

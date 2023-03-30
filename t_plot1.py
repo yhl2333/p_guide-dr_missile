@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 对比三种方法奖励图
 '''
 AVE_NUM = 10
-AVE_NUM1 = 1000
+AVE_NUM1 = 10000
 ave_rewards = []
 ave_rewards1 = []
 rewards = []
@@ -12,8 +12,8 @@ losses = []
 ave_loss = []
 ave_Q = []
 Q_sum = []
-f = open('data/infoDuel.log', 'r')
-for line in f.readlines()[1:100000]:
+f = open('data/info.log', 'r')
+for line in f.readlines()[1:20000]:
     line_split = line.split(' ')
     reward = float(line_split[3][13:])
     loss = float(line_split[4][6:-1])
@@ -28,13 +28,13 @@ for line in f.readlines()[1:100000]:
     if len(ave_rewards) > AVE_NUM1:
         ave_rewards1.append(sum(ave_rewards[len(ave_rewards)-AVE_NUM1 : len(ave_rewards)]) / AVE_NUM1)
 
-plt.plot(ave_rewards,'r', label='original', linewidth='0.05')
-plt.plot(ave_rewards1, 'b', label='average', linewidth='1.5')
+plt.plot(ave_rewards,'r', label='original', linewidth='1.5')
+#plt.plot(ave_rewards1, 'b', label='average', linewidth='1.5')
 ave_rewards.clear()
 ave_rewards1.clear()
 
-plt.xlabel('episodes')
-plt.ylabel('total rewards')
+plt.xlabel('episodes*20')
+plt.ylabel('total Q-Value')
 plt.legend()
 
 plt.show()

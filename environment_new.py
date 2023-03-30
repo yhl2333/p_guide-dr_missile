@@ -22,7 +22,7 @@ class CombatEnv(object):
         # 状态表示为：距离，AA角，ATA角....
         self.state = []
         self.action_dim = 7
-        self.state_dim = 12
+        self.state_dim = 18
         self.done = False
         self.total_steps = 0
         self.cache = Cache()
@@ -40,8 +40,8 @@ class CombatEnv(object):
             # self.theta = random.uniform(-pi, pi)  # 敌方无人机相对我方的方位角（2D）,在小角度出现？便于学习？
             self.theta = pi / 4
         if rand is False:
-            x = 10000
-            y = -10000
+            x = 5000
+            y = -20000
             z = Z_INIT
             v = 700
             heading = pi/2
@@ -92,50 +92,58 @@ class CombatEnv(object):
         self.action_emerge = 0
         self.init_x_m = 0
         self.init_x_b = 0
-        state_norm = self._normalize(state_r, state_b)
+        state_norm = self._normalize(state_r, state_b, self.missile1.missile_state)
         self.state = state_norm
         return self.state
 
     # 状态归一化，防止差异化过大
-    def _normalize(self, state_r, state_b):
+    def _normalize(self, state_r, state_b, state_missile):
         x_r, y_r, z_r, v_r, heading_r, roll_r, pitch_r = state_r
         x_b, y_b, z_b, v_b, heading_b, roll_b, pitch_b = state_b
-
+        x_m, y_m, z_m, v_m, vm_x, vm_y, vm_z = state_missile
         x_r = x_r / 10000.0
         x_b = x_b / 10000.0
+        x_m = x_m / 10000.0
         y_r = y_r / 30000.0
         y_b = y_b / 30000.0
+        y_m = y_m / 30000.0
         v_r = (v_r - 700) / 50
         v_b = (v_b - 250) / 50
+
         z_r = (z_r - Z_MIN) / (Z_MAX - Z_MIN)
         z_b = (z_b - Z_MIN) / (Z_MAX - Z_MIN)
+        z_m = (z_m - Z_MIN) / (Z_MAX - Z_MIN)
         pitch_r = pitch_r / PITCH_MAX
         pitch_b = pitch_b / PITCH_MAX
         # roll_r = roll_r / ROLL_MAX
         # roll_b = roll_b / ROLL_MAX
-
-        return [x_r, x_b, y_r, y_b, z_r, z_b, v_r, v_b, pitch_r, pitch_b, heading_r, heading_b]
+        vm_x = vm_x / 400
+        vm_y = vm_y / 400
+        vm_z = vm_z / 400
+        return [x_r, x_b, y_r, y_b, z_r, z_b, v_r, v_b, pitch_r, pitch_b, heading_r, heading_b, x_m, y_m, z_m, vm_x, vm_y, vm_z]
 
     # 态势评估，由敌我无人机状态解算出距离、威胁角等
-    def _situation(self, state_r, state_b):
+    def _situation(self, state_r, state_b, state_messile1):
         x_r, y_r, z_r, v_r, heading_r, roll_r, pitch_r = state_r
         x_b, y_b, z_b, v_b, heading_b, roll_b, pitch_b = state_b
-
+        x_m, y_m, z_m, v_m, vm_x, vm_y, vm_z = state_messile1
         # 距离向量
-        vector_d = np.array([x_b - x_r, y_b - y_r, z_b - z_r])
+        vector_d = np.array([x_m - x_r, y_m - y_r, z_m - z_r])
         # 敌我无人机的速度向量
         vector_vr = np.array([math.cos(pitch_r) * math.cos(heading_r),
                               math.sin(heading_r) * math.cos(pitch_r), math.sin(pitch_r)])
         vector_vb = np.array([math.cos(pitch_b) * math.cos(heading_b),
                               math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
+        vector_vm = np.array([vm_x, vm_y, vm_z])
         # AA角和ATA角计算，向量夹角
         # AA和ATA搞反了，和论文刚好相反
         aspect_angle = self._cal_angle(vector_vr, vector_d)
-        antenna_train_angle = self._cal_angle(vector_vb, vector_d)
+        coop_angle = self._cal_angle(vector_vr, vector_vm)
+        antenna_train_angle = self._cal_angle(vector_vr, vector_vm)
         # print("AA:{0}, ATA:{1}".format(aspect_angle, antenna_train_angle))
 
         distance = np.sqrt(np.sum(vector_d * vector_d))
-        return [distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b]
+        return [distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b, z_m, coop_angle]
 
     def p_b_situation(self, state_missile, state_b):
         x_m, y_m, z_m, v_m, v_x, v_y, v_z = state_missile
@@ -168,17 +176,21 @@ class CombatEnv(object):
         height_reward = advantage.height_adv(situation)
         velocity_reward = advantage.velocity_adv(situation)
         dis_reward = advantage.dis_adv(situation)
-        pre_angle_reward = advantage.pre_angle(situation)
+        pre_angle_reward = advantage.pre_angle(situation,self.step_num)
+        coop_angle_reward = advantage.coop_angle_adv(situation)
         if save is True:
             self.cache.push_angle_adv(angle_reward)
             self.cache.push_height_adv(height_reward)
             self.cache.push_velocity_adv(velocity_reward)
             self.cache.push_dis_adv(dis_reward)
             self.cache.push_pre_angle_adv(pre_angle_reward)
-            self.cache.push_reward(0.2*velocity_reward+0.8*pre_angle_reward+0.*height_reward)
+            self.cache.push_coop_angle_adv(coop_angle_reward)
+            self.cache.push_reward(0.15*velocity_reward+0.85*pre_angle_reward+0.*dis_reward+0.*height_reward+0.*coop_angle_reward)
 
         #return 0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward
-        return 0.2*velocity_reward+0.8*pre_angle_reward+0.*dis_reward+0.*height_reward
+
+        return 0.15*velocity_reward+0.85*pre_angle_reward+0.*dis_reward+0.*height_reward+0.*coop_angle_reward
+
     def _enemy_ai(self):
         """
         敌机策略生成，滚动时域法，搜索7个动作中使我方无人机回报最小的动作执行
@@ -317,8 +329,8 @@ class CombatEnv(object):
 
         self.virtual_aircraft_b.maneuver(action_b)
 
-        self.state = self._normalize(state_r, state_b)
-        situation = self._situation(state_r, state_b)
+        self.state = self._normalize(state_r, state_b, state_missile1)
+        situation = self._situation(state_r, state_b, state_missile1)
 
         reward = self._cal_reward(situation, save=True)
         self.total_steps += 1
@@ -326,7 +338,7 @@ class CombatEnv(object):
 
         distance, z_r, aa, ata = situation[0], situation[3], situation[1], situation[2]
         # 超出近战范围或步长过大
-        if self.done is False and self.total_steps >= 220:
+        if self.done is False and self.total_steps >= 280:
             self.done = True
 
         if distance > DIST_INIT_MAX or distance < 500:

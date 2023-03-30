@@ -13,6 +13,7 @@ class Cache(object):
         self.height_adv = []
         self.velocity_adv = []
         self.pre_angle_adv = []
+        self.coop_angle_adv = []
         self.dis_adv = []
         self.missile1_states = []
 
@@ -26,6 +27,7 @@ class Cache(object):
         self.height_adv = []
         self.velocity_adv = []
         self.pre_angle_adv = []
+        self.coop_angle_adv = []
         self.dis_adv = []
         self.missile1_states = []
     # def save_combat_log(self, state_r, state_b, reward):
@@ -64,6 +66,9 @@ class Cache(object):
     def push_pre_angle_adv(self, pre_angle_adv):
         self.pre_angle_adv.append(pre_angle_adv)
 
+    def push_coop_angle_adv(self, coop_angle_adv):
+        self.coop_angle_adv.append(coop_angle_adv)
+
     def get_r_states(self):
         return self.aircraft_r_states
 
@@ -96,6 +101,8 @@ class Cache(object):
 
     def get_b_actions(self):
         return self.b_actions
+    def get_coop_angle_adv(self):
+        return  self.coop_angle_adv
 
     def is_empty(self):
         return len(self.aircraft_r_states) == 0
