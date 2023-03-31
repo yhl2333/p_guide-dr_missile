@@ -42,7 +42,7 @@ class CombatEnv(object):
         if rand is False:
             x = 5000
             y = -20000
-            z = Z_INIT
+            z = 5000
             v = 700
             heading = pi/2
             roll = ROLL_INIT
@@ -135,10 +135,11 @@ class CombatEnv(object):
         vector_vb = np.array([math.cos(pitch_b) * math.cos(heading_b),
                               math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
         vector_vm = np.array([vm_x, vm_y, vm_z])
+        vector_vm_xy = np.array([vm_x, vm_y, 40])
         # AA角和ATA角计算，向量夹角
         # AA和ATA搞反了，和论文刚好相反
         aspect_angle = self._cal_angle(vector_vr, vector_d)
-        coop_angle = self._cal_angle(vector_vr, vector_vm)
+        coop_angle = self._cal_angle(vector_vr, vector_vm_xy)
         antenna_train_angle = self._cal_angle(vector_vr, vector_vm)
         # print("AA:{0}, ATA:{1}".format(aspect_angle, antenna_train_angle))
 
@@ -338,7 +339,7 @@ class CombatEnv(object):
 
         distance, z_r, aa, ata = situation[0], situation[3], situation[1], situation[2]
         # 超出近战范围或步长过大
-        if self.done is False and self.total_steps >= 280:
+        if self.done is False and self.total_steps >= 290:
             self.done = True
 
         if distance > DIST_INIT_MAX or distance < 500:

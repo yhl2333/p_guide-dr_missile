@@ -14,7 +14,7 @@ DRAW_WITH_ADVANTAGE = True
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airCom11601')
+    agent.load_model('model/airCom10201')
     cache = agent.test_result()
     r_states = cache.get_r_states()
     b_states = cache.get_b_states()
@@ -91,7 +91,7 @@ if __name__ == '__main__':
             ax.plot(missile1_states_x[0:i], missile1_states_y[0:i], missile1_states_z[0:i], 'k')
             ax1.plot(rewards[0:i], 'b')
             ax2.plot(pre_angle_adv[0:i], 'b')
-            ax3.plot(dis_adv[0:i], 'b')
+            ax3.plot(velocity_adv[0:i], 'b')
             ax4.plot(coop_angle_adv[0:i], 'b')
             plt.pause(0.05)
         ax.plot(r_states_x, r_states_y, r_states_z, 'r', label='aircraft_r')

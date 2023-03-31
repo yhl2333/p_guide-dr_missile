@@ -44,14 +44,19 @@ def dis_adv(state):
 
 def pre_angle(state,step_num):
     distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b, z_m, coop_angle = state
-    if step_num>130:
-        if aspect_angle < pi/8:
-            adv_p = math.exp(-8*aspect_angle / AA_MAX)
+    if 220 > step_num > 130:
+        if coop_angle < pi/8:
+            adv_p = math.exp(-8*coop_angle / AA_MAX)
+        else:
+            adv_p = -1
+    elif step_num <= 130:
+        if antenna_train_angle < pi/6:
+            adv_p = 2*math.exp(-6*antenna_train_angle / AA_MAX)-1
         else:
             adv_p = -1
     else:
-        if antenna_train_angle < pi/6:
-            adv_p = 2*math.exp(-6*antenna_train_angle / AA_MAX)-1
+        if aspect_angle < pi/3:
+            adv_p = 2*math.exp(-3*aspect_angle / AA_MAX)-1
         else:
             adv_p = -1
     return adv_p

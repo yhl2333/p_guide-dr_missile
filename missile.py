@@ -24,7 +24,7 @@ class Missile:
 
     def __init__(self, num: int):
         self.num = num  # 编号
-        self.ms_v = 700  # 导弹飞行速度大小
+        self.ms_v = 750  # 导弹飞行速度大小
         # self.emitted = False  # 导弹是否已经发射
         # self.hit_tar = False  # 是否命中目标
         # self.sim_end = False  # 是否结束仿真
