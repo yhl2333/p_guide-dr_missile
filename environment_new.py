@@ -135,7 +135,7 @@ class CombatEnv(object):
         vector_vb = np.array([math.cos(pitch_b) * math.cos(heading_b),
                               math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
         vector_vm = np.array([vm_x, vm_y, vm_z])
-        vector_vm_xy = np.array([vm_x, vm_y, 40])
+        vector_vm_xy = np.array([vm_x, vm_y, 60])
         # AA角和ATA角计算，向量夹角
         # AA和ATA搞反了，和论文刚好相反
         aspect_angle = self._cal_angle(vector_vr, vector_d)

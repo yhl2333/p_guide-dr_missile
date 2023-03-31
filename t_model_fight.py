@@ -14,7 +14,7 @@ DRAW_WITH_ADVANTAGE = True
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airCom10201')
+    agent.load_model('model/airCom19001')
     cache = agent.test_result()
     r_states = cache.get_r_states()
     b_states = cache.get_b_states()
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         ax2.set_ylabel('angle advantage')
 
         ax3 = fig1.add_subplot(247)
-        plt.title("Real-time dis advantage")
+        plt.title("Real-time velocity advantage")
         ax3.set_xlabel('steps')
         ax3.set_ylabel('dis advantage')
 

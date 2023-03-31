@@ -13,7 +13,7 @@ ave_loss = []
 ave_Q = []
 Q_sum = []
 f = open('data/info.log', 'r')
-for line in f.readlines()[1:20000]:
+for line in f.readlines()[1:10000]:
     line_split = line.split(' ')
     reward = float(line_split[3][13:])
     loss = float(line_split[4][6:-1])
@@ -25,16 +25,15 @@ for line in f.readlines()[1:20000]:
         ave_rewards.append(sum(rewards[len(rewards)-AVE_NUM : len(rewards)]) / AVE_NUM)
         ave_loss.append(sum(losses[len(rewards) - AVE_NUM : len(rewards)]) / AVE_NUM)
         ave_Q.append(sum(Q_sum[len(rewards) - AVE_NUM : len(rewards)]) / AVE_NUM)
-    if len(ave_rewards) > AVE_NUM1:
-        ave_rewards1.append(sum(ave_rewards[len(ave_rewards)-AVE_NUM1 : len(ave_rewards)]) / AVE_NUM1)
 
-plt.plot(ave_rewards,'r', label='original', linewidth='1.5')
+
+plt.plot(ave_loss, 'b', label='original', linewidth='1.5')
 #plt.plot(ave_rewards1, 'b', label='average', linewidth='1.5')
 ave_rewards.clear()
 ave_rewards1.clear()
 
-plt.xlabel('episodes*20')
-plt.ylabel('total Q-Value')
+plt.xlabel('episodes')
+plt.ylabel('total loss')
 plt.legend()
 
 plt.show()
