@@ -33,6 +33,7 @@ class CombatEnv(object):
         self.action_emerge = 0
         self.init_x_b = 0
         self.init_x_m = 0
+        self.action_random = 0
     # 初始化敌我无人机初始状态
     def _state_initialize(self, rand=False):
         # 引入theta为了使两机初始状态相对
@@ -132,6 +133,7 @@ class CombatEnv(object):
         # 敌我无人机的速度向量
         vector_vr = np.array([math.cos(pitch_r) * math.cos(heading_r),
                               math.sin(heading_r) * math.cos(pitch_r), math.sin(pitch_r)])
+
         vector_vb = np.array([math.cos(pitch_b) * math.cos(heading_b),
                               math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
         vector_vm = np.array([vm_x, vm_y, vm_z])
@@ -142,7 +144,9 @@ class CombatEnv(object):
         coop_angle = self._cal_angle(vector_vr, vector_vm_xy)
         antenna_train_angle = self._cal_angle(vector_vr, vector_vm)
         # print("AA:{0}, ATA:{1}".format(aspect_angle, antenna_train_angle))
-
+        #print(coop_angle)
+        #print(vector_vr*v_r)
+        #print(self.step_num)
         distance = np.sqrt(np.sum(vector_d * vector_d))
         return [distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b, z_m, coop_angle]
 
@@ -259,15 +263,19 @@ class CombatEnv(object):
         # 0.定常飞行； 1.加速； 2.减速； 3.左转弯； 4.右转弯； 5.拉起； 6.俯冲
         if self.step_num < 50:
             return 1
+        #else:
+            #if random.random() >= 0.1:
+                #return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
+            #else:
+                #if z_m > z_b:
+                    #return 6
+                #else:
+                    #return 5
         else:
-            if random.random() >= 0.1:
-                return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
-            else:
-                if z_m > z_b:
-                    return 6
-                else:
-                    return 5
 
+            if self.step_num%5 == 0:
+                self.action_random = random.randint(0, 6)
+            return self.action_random
 
     def _escape(self, left_or_right):
         if left_or_right > 0:
@@ -281,7 +289,7 @@ class CombatEnv(object):
         #print(self._cal_angle(vector_vm, vector_vb))
         if distance>1500:
             if (self._cal_angle(vector_vm, vector_vb) > 2*pi/3)or(self._cal_angle(vector_vm, vector_vb) < pi/3):
-                if init_x_m >init_x_b:
+                if random.random() >= 0.5:
                     return 3
                 else:
                     return 4

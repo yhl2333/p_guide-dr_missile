@@ -56,7 +56,7 @@ def pre_angle(state,step_num):
             adv_p = -1
     else:
         if aspect_angle < pi/3:
-            adv_p = 2*math.exp(-3*aspect_angle / AA_MAX)-1
+            adv_p = 2*math.exp(-6*aspect_angle / AA_MAX)-1
         else:
             adv_p = -1
     return adv_p

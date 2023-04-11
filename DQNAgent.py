@@ -13,7 +13,7 @@ EPS_START = 0.99
 EPS_END = 0.01
 EPS_DECAY = 500000
 TARGET_UPDATE = 100
-NUM_EPISODES = 20000
+NUM_EPISODES = 100000
 TRAIN_CONTINUE = False
 
 # if gpu is to be used
@@ -59,7 +59,7 @@ class ReplyMemory(object):
 
 
 class Agent(object):
-    def __init__(self, env: CombatEnv = None, capacity=1000000, hidden_dim=120):
+    def __init__(self, env: CombatEnv = None, capacity=3000000, hidden_dim=120):
         if env is None:
             raise Exception("agent should have an environment")
         self.env = env
