@@ -59,7 +59,7 @@ class ReplyMemory(object):
 
 
 class Agent(object):
-    def __init__(self, env: CombatEnv = None, capacity=3000000, hidden_dim=120):
+    def __init__(self, env: CombatEnv = None, capacity=1000000, hidden_dim=120):
         if env is None:
             raise Exception("agent should have an environment")
         self.env = env

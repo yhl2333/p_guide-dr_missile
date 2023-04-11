@@ -59,7 +59,7 @@ class CombatEnv(object):
             # distance_from_r = 10000.0  # 固定距离？？ 便于学习？？
             #distance_from_r = 8000.0 / math.cos(self.theta)
             x = 10000
-            y = 30000
+            y = 40000
             z = Z_INIT
             v = V_INIT
             roll = ROLL_INIT
@@ -137,7 +137,10 @@ class CombatEnv(object):
         vector_vb = np.array([math.cos(pitch_b) * math.cos(heading_b),
                               math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
         vector_vm = np.array([vm_x, vm_y, vm_z])
-        vector_vm_xy = np.array([vm_x, vm_y, 60])
+        if vm_z>0:
+            vector_vm_xy = np.array([vm_x, vm_y, 40])
+        else:
+            vector_vm_xy = np.array([vm_x, vm_y, -40])
         # AA角和ATA角计算，向量夹角
         # AA和ATA搞反了，和论文刚好相反
         aspect_angle = self._cal_angle(vector_vr, vector_d)
