@@ -14,6 +14,7 @@ class CombatEnv(object):
         self.aircraft_r = Aircraft(state_r)
         self.aircraft_b = Aircraft(state_b)
         self.missile1 = Missile(1)
+        self.missile2 = Missile(2)
         # 虚拟对抗的敌机，用于做和真实无人机相同的动作
         # 敌机策略生成方法：敌机搜索7个动作，选取及时收益最大的动作
         self.virtual_aircraft_b = Aircraft(state_b)
@@ -129,7 +130,7 @@ class CombatEnv(object):
         x_b, y_b, z_b, v_b, heading_b, roll_b, pitch_b = state_b
         x_m, y_m, z_m, v_m, vm_x, vm_y, vm_z = state_messile1
         # 距离向量
-        vector_d = np.array([x_m - x_r, y_m - y_r, z_m - z_r])
+        vector_d = np.array([x_b - x_r, y_b - y_r, z_b - z_r])
         # 敌我无人机的速度向量
         vector_vr = np.array([math.cos(pitch_r) * math.cos(heading_r),
                               math.sin(heading_r) * math.cos(pitch_r), math.sin(pitch_r)])
@@ -138,18 +139,16 @@ class CombatEnv(object):
                               math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
         vector_vm = np.array([vm_x, vm_y, vm_z])
         if vm_z>0:
-            vector_vm_xy = np.array([vm_x, vm_y, 40])
+            vector_vm_xy = np.array([vm_x, vm_y, vm_z/3])
         else:
-            vector_vm_xy = np.array([vm_x, vm_y, -40])
+            vector_vm_xy = np.array([vm_x, vm_y, vm_z/3])
         # AA角和ATA角计算，向量夹角
         # AA和ATA搞反了，和论文刚好相反
         aspect_angle = self._cal_angle(vector_vr, vector_d)
         coop_angle = self._cal_angle(vector_vr, vector_vm_xy)
         antenna_train_angle = self._cal_angle(vector_vr, vector_vm)
         # print("AA:{0}, ATA:{1}".format(aspect_angle, antenna_train_angle))
-        #print(coop_angle)
-        #print(vector_vr*v_r)
-        #print(self.step_num)
+
         distance = np.sqrt(np.sum(vector_d * vector_d))
         return [distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b, z_m, coop_angle]
 
@@ -266,19 +265,19 @@ class CombatEnv(object):
         # 0.定常飞行； 1.加速； 2.减速； 3.左转弯； 4.右转弯； 5.拉起； 6.俯冲
         if self.step_num < 50:
             return 1
-        #else:
-            #if random.random() >= 0.1:
-                #return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
-            #else:
-                #if z_m > z_b:
-                    #return 6
-                #else:
-                    #return 5
         else:
-
-            if self.step_num%5 == 0:
-                self.action_random = random.randint(0, 6)
-            return self.action_random
+            if random.random() >= 0.1:
+                return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
+            else:
+                if z_m > z_b:
+                    return 6
+                else:
+                    return 5
+        # else:
+        #
+        #     if self.step_num%5 == 0:
+        #         self.action_random = random.randint(0, 6)
+        #     return self.action_random
 
     def _escape(self, left_or_right):
         if left_or_right > 0:
@@ -292,7 +291,8 @@ class CombatEnv(object):
         #print(self._cal_angle(vector_vm, vector_vb))
         if distance>1500:
             if (self._cal_angle(vector_vm, vector_vb) > 2*pi/3)or(self._cal_angle(vector_vm, vector_vb) < pi/3):
-                if random.random() >= 0.5:
+                #if random.random() >= 0.5:
+                if init_x_m > init_x_b:
                     return 3
                 else:
                     return 4
@@ -325,7 +325,7 @@ class CombatEnv(object):
         :param action: 执行动作
         :return: 下一状态（归一化后）、奖励、该幕是否结束
         """
-        self.step_num +=1
+        self.step_num += 1
         action_r = action
         action_b = self._enemy_ai_expert()
 
@@ -348,15 +348,7 @@ class CombatEnv(object):
         self.total_steps += 1
         # self.cache.save_combat_log(state_r,state_b,reward)
 
-        distance, z_r, aa, ata = situation[0], situation[3], situation[1], situation[2]
         # 超出近战范围或步长过大
-        if self.done is False and self.total_steps >= 290:
-            self.done = True
-
-        if distance > DIST_INIT_MAX or distance < 500:
-            reward = 10
-            self.cache.push_reward(reward)
-            self.done = True
 
         #if aa * rad2deg < 30 and ata * rad2deg < 45:
         #    reward = 30
@@ -368,5 +360,35 @@ class CombatEnv(object):
         #     reward = -30
         return self.state, reward, self.done
 
+
+    def step0(self):
+
+        self.step_num += 1
+        action_b = self._enemy_ai_expert()
+
+        state_b = self.aircraft_b.maneuver(action_b)
+        if self.step_num == 221:
+            state_r0 = self.aircraft_r.state
+
+            self.missile2.emit_mis(state_b,state_r0)
+
+
+        state_missile1 = self.missile1.p_guide_sim(state_b)
+        state_r = self.missile2.p_guide_sim(state_b)
+        # print("b action is {0}, state is {1}".format(action_b, state_b))
+        self.cache.push_r_state(state_r)
+        self.cache.push_b_state(state_b)
+        self.cache.push_missile1_state(state_missile1)
+
+        self.total_steps += 1
+
+        situation = self._situation(state_r, state_b, state_missile1)
+        distance = situation[0]
+        if distance > DIST_INIT_MAX or distance < 200:
+            self.done = True
+        if self.done is False and self.total_steps >= 290:
+            self.done = True
+
+        return self.done
     def get_cache(self):
         return self.cache

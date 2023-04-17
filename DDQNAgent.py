@@ -17,9 +17,9 @@ BATCH_SIZE = 64
 GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.01
-EPS_DECAY = 5000000
+EPS_DECAY = 500000
 TARGET_UPDATE = 200
-NUM_EPISODES = 200000
+NUM_EPISODES = 10000
 TRAIN_CONTINUE = False
 
 # if gpu is to be used
@@ -157,7 +157,7 @@ class Agent(object):
             loss = 0.0
             total_rewards = 0.0
             total_q = 0.0
-            while not is_done:
+            while self.env.step_num<220:
                 s0 = self.state
                 a0 = self.select_action(s0)
                 total_q += self.policy_net(s0).sum()
@@ -186,7 +186,7 @@ class Agent(object):
                           total_q / step_in_episode))
 
             # 每一万轮保存模型参数
-            if (i_episode + 1) % 1000 == 0:
+            if (i_episode + 1) % 10 == 0:
                 self.save_model('model/airComDDQN' + str(i_episode))
 
             # if i_episode % TARGET_UPDATE == 0:
@@ -214,12 +214,15 @@ class Agent(object):
         total_rewards = 0
         is_done = False
         while not is_done:
-            s0 = self.state
-            a0 = self.select_action_greedy(s0)
-            s1, r1, is_done = self.env.step(a0.item())
-            total_rewards += r1
-            s1 = torch.tensor(s1, dtype=torch.float, device=device, requires_grad=True).unsqueeze(0)
-            self.state = s1
+            if self.env.step_num<220:
+                s0 = self.state
+                a0 = self.select_action_greedy(s0)
+                s1, r1, is_done = self.env.step(a0.item())
+                total_rewards += r1
+                s1 = torch.tensor(s1, dtype=torch.float, device=device, requires_grad=True).unsqueeze(0)
+                self.state = s1
+            else:
+                is_done = self.env.step0()
         print("test over!")
         return self.env.cache
 

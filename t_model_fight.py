@@ -1,4 +1,4 @@
-from DQNAgent import *
+from DuelingAgent import *
 from environment_new import *
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
@@ -14,7 +14,7 @@ DRAW_WITH_ADVANTAGE = True
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airCom24001')
+    agent.load_model('model/airComDuel11999')
     cache = agent.test_result()
     r_states = cache.get_r_states()
     b_states = cache.get_b_states()
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     rewards = cache.get_rewards()
 
 
-    print("total steps:{0}; rewards is {1}".format(len(rewards), sum(rewards)))
+    print("total steps:{0}; rewards is {1}".format(len(r_states), sum(rewards)))
     print(rewards)
     print(r_actions)
     print(b_actions)

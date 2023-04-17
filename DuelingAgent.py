@@ -162,7 +162,7 @@ class Agent(object):
             loss = 0.0
             total_rewards = 0.0
             total_q = 0.0
-            while not is_done:
+            while self.env.step_num < 220:
                 s0 = self.state
                 a0 = self.select_action(s0)
                 total_q += self.policy_net(s0).sum()
@@ -219,12 +219,16 @@ class Agent(object):
         total_rewards = 0
         is_done = False
         while not is_done:
-            s0 = self.state
-            a0 = self.select_action_greedy(s0)
-            s1, r1, is_done = self.env.step(a0.item())
-            total_rewards += r1
-            s1 = torch.tensor(s1, dtype=torch.float, device=device, requires_grad=True).unsqueeze(0)
-            self.state = s1
+            if self.env.step_num<220:
+                s0 = self.state
+                a0 = self.select_action_greedy(s0)
+                s1, r1, is_done = self.env.step(a0.item())
+                total_rewards += r1
+                s1 = torch.tensor(s1, dtype=torch.float, device=device, requires_grad=True).unsqueeze(0)
+                self.state = s1
+            else:
+                is_done = self.env.step0()
+
         print("test over!")
         return self.env.cache
 
