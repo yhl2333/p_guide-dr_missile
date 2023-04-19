@@ -45,7 +45,7 @@ class CombatEnv(object):
             x = 5000
             y = -20000
             z = 5000
-            v = 700
+            v = 850
             heading = pi/2
             roll = ROLL_INIT
             pitch = PITCH_INIT
@@ -59,9 +59,9 @@ class CombatEnv(object):
             # distance_from_r = random.uniform(0.4 * DIST_INIT_MAX, 0.5 * DIST_INIT_MAX)  # 初始距离
             # distance_from_r = 10000.0  # 固定距离？？ 便于学习？？
             #distance_from_r = 8000.0 / math.cos(self.theta)
-            x = 10000
-            y = 40000
-            z = Z_INIT
+            x = random.randrange(-1000,5000,1000)
+            y = 50000
+            z = random.randrange(5000,7000,250)
             v = V_INIT
             roll = ROLL_INIT
             pitch = PITCH_INIT
@@ -181,7 +181,7 @@ class CombatEnv(object):
     def _cal_reward(self, situation, save=True):
         angle_reward = advantage.angle_adv(situation)
         height_reward = advantage.height_adv(situation)
-        velocity_reward = advantage.velocity_adv(situation)
+        velocity_reward = advantage.velocity_adv(situation,self.step_num)
         dis_reward = advantage.dis_adv(situation)
         pre_angle_reward = advantage.pre_angle(situation,self.step_num)
         coop_angle_reward = advantage.coop_angle_adv(situation)
@@ -192,11 +192,11 @@ class CombatEnv(object):
             self.cache.push_dis_adv(dis_reward)
             self.cache.push_pre_angle_adv(pre_angle_reward)
             self.cache.push_coop_angle_adv(coop_angle_reward)
-            self.cache.push_reward(0.15*velocity_reward+0.85*pre_angle_reward+0.*dis_reward+0.*height_reward+0.*coop_angle_reward)
+            self.cache.push_reward(0.2*velocity_reward+0.8*pre_angle_reward+0.*dis_reward+0.*height_reward+0.*coop_angle_reward)
 
         #return 0.7 * angle_reward + 0.2 * height_reward + 0.1 * velocity_reward
 
-        return 0.15*velocity_reward+0.85*pre_angle_reward+0.*dis_reward+0.*height_reward+0.*coop_angle_reward
+        return 0.2*velocity_reward+0.8*pre_angle_reward+0.*dis_reward+0.*height_reward+0.*coop_angle_reward
 
     def _enemy_ai(self):
         """
@@ -265,19 +265,19 @@ class CombatEnv(object):
         # 0.定常飞行； 1.加速； 2.减速； 3.左转弯； 4.右转弯； 5.拉起； 6.俯冲
         if self.step_num < 50:
             return 1
-        else:
-            if random.random() >= 0.1:
-                return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
-            else:
-                if z_m > z_b:
-                    return 6
-                else:
-                    return 5
         # else:
-        #
-        #     if self.step_num%5 == 0:
-        #         self.action_random = random.randint(0, 6)
-        #     return self.action_random
+        #     if random.random() >= 0.1:
+        #         return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
+        #     else:
+        #         if z_m > z_b:
+        #             return 6
+        #         else:
+        #             return 5
+        else:
+
+            if self.step_num%5 == 0:
+                self.action_random = random.randint(0, 6)
+            return self.action_random
 
     def _escape(self, left_or_right):
         if left_or_right > 0:
@@ -291,8 +291,8 @@ class CombatEnv(object):
         #print(self._cal_angle(vector_vm, vector_vb))
         if distance>1500:
             if (self._cal_angle(vector_vm, vector_vb) > 2*pi/3)or(self._cal_angle(vector_vm, vector_vb) < pi/3):
-                #if random.random() >= 0.5:
-                if init_x_m > init_x_b:
+                if random.random() >= 0.5:
+                #if init_x_m > init_x_b:
                     return 3
                 else:
                     return 4

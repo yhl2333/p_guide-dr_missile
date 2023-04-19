@@ -8,9 +8,9 @@ AVE_NUM = 100
 ave_rewards = [[],[],[]]
 rewards = [[],[],[]]
 
-f1 = open('data/info_lr1e-3', 'r')
+f1 = open('data/info', 'r')
 f2 = open('data/info_lr1e-4', 'r')
-f3 = open('data/info_lr1e-5', 'r')
+f3 = open('data/infoDuel', 'r')
 file_list = [f1, f2, f3]
 
 for i, f in enumerate(file_list):

@@ -1,4 +1,4 @@
-from DuelingAgent import *
+from DQNAgent import *
 from environment_new import *
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
@@ -14,7 +14,7 @@ DRAW_WITH_ADVANTAGE = True
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airComDuel11999')
+    agent.load_model('model/airCom10001')
     cache = agent.test_result()
     r_states = cache.get_r_states()
     b_states = cache.get_b_states()
