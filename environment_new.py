@@ -59,8 +59,8 @@ class CombatEnv(object):
             # distance_from_r = random.uniform(0.4 * DIST_INIT_MAX, 0.5 * DIST_INIT_MAX)  # 初始距离
             # distance_from_r = 10000.0  # 固定距离？？ 便于学习？？
             #distance_from_r = 8000.0 / math.cos(self.theta)
-            x = random.randrange(-1000,5000,1000)
-            y = 50000
+            x = random.randrange(-1000,10000,1000)
+            y = 40000
             z = random.randrange(5000,7000,250)
             v = V_INIT
             roll = ROLL_INIT
@@ -275,7 +275,7 @@ class CombatEnv(object):
         #             return 5
         else:
 
-            if self.step_num%5 == 0:
+            if self.step_num%4 == 0:
                 self.action_random = random.randint(0, 6)
             return self.action_random
 
