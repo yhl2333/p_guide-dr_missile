@@ -19,7 +19,7 @@ if __name__ == '__main__':
     r_actions = cache.get_r_actions()
     b_actions = cache.get_b_actions()
 
-    plt.plot(r_actions, 'r', linewidth=1, label ='r_aircraft_acitons', linestyle='-')
+
     plt.plot(b_actions, 'b', linewidth=1, label ='b_aircraft_acitons', linestyle='--')
     plt.legend()
     plt.xlabel('steps')

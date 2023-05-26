@@ -1,4 +1,4 @@
-from DQNAgent import *
+from DDQNAgent import *
 from environment_new import *
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
@@ -14,7 +14,7 @@ DRAW_WITH_ADVANTAGE = True
 if __name__ == '__main__':
     env = CombatEnv()
     agent = Agent(env)
-    agent.load_model('model/airCom5001')
+    agent.load_model('model/airComDDQN9999')
     cache = agent.test_result()
     r_states = cache.get_r_states()
     b_states = cache.get_b_states()

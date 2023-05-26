@@ -137,7 +137,7 @@ class Agent(object):
         return this_loss
 
     def learning(self):
-        f = open('data/info.log', 'w')
+        f = open('data/iinfo.log', 'w')
         for i_episode in range(NUM_EPISODES):
             self.state = self.env.reset()
             # unsqueeze(0)增加一维，便于直接输入神经网络，shape:1*n

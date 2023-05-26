@@ -139,9 +139,9 @@ class CombatEnv(object):
                               math.sin(heading_b) * math.cos(pitch_b), math.sin(pitch_b)])
         vector_vm = np.array([vm_x, vm_y, vm_z])
         if vm_z>0:
-            vector_vm_xy = np.array([vm_x, vm_y, vm_z/3])
+            vector_vm_xy = 0.6*np.array([vm_x, vm_y, vm_z/3])/np.linalg.norm(np.array([vm_x, vm_y, vm_z/2]))+0.4* vector_d/np.linalg.norm(vector_d)
         else:
-            vector_vm_xy = np.array([vm_x, vm_y, vm_z/3])
+            vector_vm_xy = 0.6*np.array([vm_x, vm_y, vm_z/3])/np.linalg.norm(np.array([vm_x, vm_y, vm_z/2]))+0.4* vector_d/np.linalg.norm(vector_d)
         # AA角和ATA角计算，向量夹角
         # AA和ATA搞反了，和论文刚好相反
         aspect_angle = self._cal_angle(vector_vr, vector_d)
@@ -275,7 +275,7 @@ class CombatEnv(object):
         #             return 5
         else:
 
-            if self.step_num%4 == 0:
+            if self.step_num%2 == 0:
                 self.action_random = random.randint(0, 6)
             return self.action_random
 

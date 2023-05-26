@@ -152,7 +152,7 @@ class Agent(object):
         return this_loss
 
     def learning(self):
-        f = open('data/infoDuel.log', 'w')
+        f = open('data/iinfoDuel.log', 'w')
         for i_episode in range(NUM_EPISODES):
             self.state = self.env.reset()
             # unsqueeze(0)增加一维，便于直接输入神经网络，shape:1*n
@@ -191,7 +191,7 @@ class Agent(object):
                           total_q / step_in_episode))
 
             # 每一万轮保存模型参数
-            if (i_episode + 1) % 1000 == 0:
+            if (i_episode + 2) % 1000 == 0:
                 self.save_model('model/airComDuel' + str(i_episode))
 
             # if i_episode % TARGET_UPDATE == 0:
