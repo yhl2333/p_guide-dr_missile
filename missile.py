@@ -22,9 +22,9 @@ N = 4
 class Missile:
     """空空导弹模型"""
 
-    def __init__(self, num: int):
+    def __init__(self, num: int, val: int):
         self.num = num  # 编号
-        self.ms_v = 800  # 导弹飞行速度大小
+        self.ms_v = val  # 导弹飞行速度大小
         # self.emitted = False  # 导弹是否已经发射
         # self.hit_tar = False  # 是否命中目标
         # self.sim_end = False  # 是否结束仿真

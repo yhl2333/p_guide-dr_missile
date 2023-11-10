@@ -13,8 +13,8 @@ class CombatEnv(object):
             state_b = self._state_initialize(rand=True)
         self.aircraft_r = Aircraft(state_r)
         self.aircraft_b = Aircraft(state_b)
-        self.missile1 = Missile(1)
-        self.missile2 = Missile(2)
+        self.missile1 = Missile(1,700)
+        self.missile2 = Missile(2,1500)
         # 虚拟对抗的敌机，用于做和真实无人机相同的动作
         # 敌机策略生成方法：敌机搜索7个动作，选取及时收益最大的动作
         self.virtual_aircraft_b = Aircraft(state_b)
@@ -45,7 +45,7 @@ class CombatEnv(object):
             x = 5000
             y = -20000
             z = 5000
-            v = 400
+            v = 350
             heading = pi/2
             roll = ROLL_INIT
             pitch = PITCH_INIT
@@ -60,7 +60,7 @@ class CombatEnv(object):
             # distance_from_r = 10000.0  # 固定距离？？ 便于学习？？
             #distance_from_r = 8000.0 / math.cos(self.theta)
             x = random.randrange(-1000,10000,1000)
-            y = 35000
+            y = 40000
             z = random.randrange(5000,7000,250)
             v = V_INIT
             roll = ROLL_INIT
@@ -263,21 +263,21 @@ class CombatEnv(object):
         left_or_right = np.sign(vector_vm[0] * vector_vb[1] - vector_vm[1] * vector_vb[0])
         linear_adv = 1 - (aspect_angle + antenna_train_angle) / pi
         # 0.定常飞行； 1.加速； 2.减速； 3.左转弯； 4.右转弯； 5.拉起； 6.俯冲
-        if self.step_num < 50:
+        if self.step_num < 100:
             return 1
-        # else:
-        #     if random.random() >= 0.1:
-        #         return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
-        #     else:
-        #         if z_m > z_b:
-        #             return 6
-        #         else:
-        #             return 5
         else:
-
-            if self.step_num%4 == 0:
-                self.action_random = random.randint(0, 6)
-            return self.action_random
+            if random.random() >= 0.1:
+                return self._chase(vector_vm, vector_vb, distance, z_m, z_b, self.init_x_m, self.init_x_b)
+            else:
+                if z_m > z_b:
+                    return 6
+                else:
+                    return 5
+        # else:
+        #
+        #     if self.step_num%4 == 0:
+        #         self.action_random = random.randint(0, 6)
+        #     return self.action_random
 
     def _escape(self, left_or_right):
         if left_or_right > 0:
