@@ -40,7 +40,7 @@ class Missile:
         self.rt = np.array([0., 0., 0.])  # 目标位置坐标
         self.vt = np.array([0., 0., 0.])  # 目标速度
         self.state_process = []  # 保存导弹飞行状态列表
-        self.missile_init_state = [7000, -15000, 5000, self.ms_v, pi/2, ROLL_INIT, PITCH_INIT]
+        self.missile_init_state = [5000, -20000, 5000, self.ms_v, pi/2, ROLL_INIT, PITCH_INIT]
         self.missile_state = self.missile_init_state
     def reset(self):
         self.t = 0  # 仿真时间

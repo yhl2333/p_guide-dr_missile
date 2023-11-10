@@ -135,7 +135,7 @@ class Aircraft(object):
         y += dot_y * dt
         z += dot_z * dt
 
-        v = self._clamp(700, 1000, v)
+        v = self._clamp(340, 500, v)
         pitch = self._clamp(-self.pitch_max, self.pitch_max, pitch)
         if heading > pi:
             heading -= 2 * pi

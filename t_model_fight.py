@@ -86,7 +86,11 @@ if __name__ == '__main__':
         ax.plot(b_states_x[:1], b_states_y[:1], b_states_z[:1], 'g', marker='o', markersize=10)
         ax.plot(missile1_states_x[:1], missile1_states_y[:1], missile1_states_z[:1], 'g', marker='o', markersize=10)
         for i in range(len(r_states_x)):
-            ax.plot(r_states_x[0:i], r_states_y[0:i], r_states_z[0:i], 'r')
+            if(i<220):
+                ax.plot(r_states_x[0:i], r_states_y[0:i], r_states_z[0:i], 'm')
+            else:
+                ax.plot(r_states_x[0:i], r_states_y[0:i], r_states_z[0:i], 'm')
+                ax.plot(r_states_x[220:i], r_states_y[220:i], r_states_z[220:i], 'r')
             ax.plot(b_states_x[0:i], b_states_y[0:i], b_states_z[0:i], 'b')
             ax.plot(missile1_states_x[0:i], missile1_states_y[0:i], missile1_states_z[0:i], 'k')
             ax1.plot(rewards[0:i], 'b')

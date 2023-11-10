@@ -40,12 +40,12 @@ class CombatEnv(object):
         # 引入theta为了使两机初始状态相对
         if self.theta is None:
             # self.theta = random.uniform(-pi, pi)  # 敌方无人机相对我方的方位角（2D）,在小角度出现？便于学习？
-            self.theta = pi / 4
+            self.theta = pi / 6
         if rand is False:
             x = 5000
             y = -20000
             z = 5000
-            v = 850
+            v = 400
             heading = pi/2
             roll = ROLL_INIT
             pitch = PITCH_INIT
@@ -60,7 +60,7 @@ class CombatEnv(object):
             # distance_from_r = 10000.0  # 固定距离？？ 便于学习？？
             #distance_from_r = 8000.0 / math.cos(self.theta)
             x = random.randrange(-1000,10000,1000)
-            y = 40000
+            y = 35000
             z = random.randrange(5000,7000,250)
             v = V_INIT
             roll = ROLL_INIT
@@ -275,7 +275,7 @@ class CombatEnv(object):
         #             return 5
         else:
 
-            if self.step_num%2 == 0:
+            if self.step_num%4 == 0:
                 self.action_random = random.randint(0, 6)
             return self.action_random
 

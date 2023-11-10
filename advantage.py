@@ -63,9 +63,9 @@ def pre_angle(state,step_num):
 def velocity_adv(state, step_num):
     distance, aspect_angle, antenna_train_angle, z_r, z_b, v_r, v_b, pitch_r, pitch_b, roll_r, roll_b, z_m, coop_angle = state
     if step_num < 170:
-        return -(v_r - v_b - 550) / 150.0
+        return (v_r - v_b - 150) / 100.0
     else:
-        return (v_r - v_b - 550) / 150.0
+        return (v_r - v_b - 150) / 100.0
 
 def _angle_adv(aa, ata):
     if aa <= AA_MAX:
